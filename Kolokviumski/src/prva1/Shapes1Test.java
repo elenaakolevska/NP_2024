@@ -1,13 +1,13 @@
 package prva1;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-
-class Square{
+class Square {
     int side;
 
     public Square(int side) {
@@ -15,82 +15,81 @@ class Square{
     }
 
     public int getSide() {
-        return 4*side;
+        return side;
     }
+
+    public void setSide(int side) {
+        this.side = side;
+    }
+
+    public int getPerimeter() {
+        return side * 4;
+    }
+
+
 }
-class Canvas implements Comparable<Canvas>{
-    String canvas_id;
+
+class Canvas {
+    String canvasId;
     List<Square> squares;
 
-    public Canvas(String canvas_id, List<Square> squares) {
-        this.canvas_id = canvas_id;
+    public Canvas() {
+        this.squares = new ArrayList<>();
+    }
+
+    public Canvas(String canvasId, List<Square> squares) {
+        this.canvasId = canvasId;
         this.squares = squares;
     }
 
-    public static Canvas createCanvas(String line){
-        // 364fbe94 24 30 22 33 32 30 37 18 29 27 33 21 27 26
+    public static Canvas createCanvas(String line) {
         String[] parts = line.split("\\s+");
-        String id =parts[0];
+        String canvasId = parts[0];
+        List<Square> squares = new ArrayList<>();
 
-        List<Square> squares =Arrays.stream(parts)
-                .skip(1)
-                .map(p -> Integer.parseInt(p))
-                .map(side -> new Square(side))
-                .collect(Collectors.toList());
-
-
-        return new Canvas(id, squares);
+        for (int i = 1; i < parts.length; i++) {
+            squares.add(new Square(Integer.parseInt(parts[i])));
+        }
+        return new Canvas(canvasId, squares);
     }
 
-
-    public String getCanvas_id() {
-        return canvas_id;
-    }
-
-    public void setCanvas_id(String canvas_id) {
-        this.canvas_id = canvas_id;
+    public int sumPerimeter(){
+        return squares.stream().mapToInt(i->i.getPerimeter()).sum();
     }
 
     @Override
     public String toString() {
-        return String.format("%s %d %d", canvas_id, squares.size(), sumPerimetres());
-    }
-
-    public int sumPerimetres(){
-        return squares.stream()
-                .mapToInt(square -> square.getSide())
-                .sum();
-    }
-    @Override
-    public int compareTo(Canvas o) {
-        return Integer.compare(this.sumPerimetres(), o.sumPerimetres());
+        return String.format("%s %d %d", canvasId, squares.size(), sumPerimeter());
     }
 }
 
 class ShapesApplication {
-
-    List<Canvas> canvases;
+    List<Canvas> canvas;
 
     public ShapesApplication() {
+        canvas = new ArrayList<>();
     }
 
-
     public int readCanvases(InputStream in) {
+
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-       canvases  = br.lines()
-                .map(c->Canvas.createCanvas(c))
-                .collect(Collectors.toList());
+        canvas = br.
+                lines().
+                map(Canvas::createCanvas).
+                collect(Collectors.toList());
 
-        return canvases
-                .stream()
-                .mapToInt(canvases -> canvases.squares.size()).sum();
-
+        return canvas.
+                stream().
+                mapToInt(c -> c.squares.size()).
+                sum();
     }
 
     public void printLargestCanvasTo(PrintStream out) {
         PrintWriter pw = new PrintWriter(out);
-
-        Canvas max = canvases.stream().max(Comparator.naturalOrder()).get();
+        Canvas max = canvas.
+                stream().
+                max(Comparator.comparing(Canvas::sumPerimeter)).
+                get();
         pw.println(max);
         pw.flush();
     }
@@ -107,6 +106,4 @@ public class Shapes1Test {
         shapesApplication.printLargestCanvasTo(System.out);
 
     }
-
-
 }

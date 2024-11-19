@@ -1,6 +1,5 @@
 package devetta;
 
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -8,36 +7,30 @@ import java.util.Scanner;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
-class Triple<T extends Number> {
-
+class Triple<T extends Number>{
     List<T> numbers;
 
     public Triple(T num1, T num2, T num3) {
-        numbers = new ArrayList<>();
+        this.numbers = new ArrayList<>();
         numbers.add(num1);
         numbers.add(num2);
         numbers.add(num3);
     }
 
-    public double max() {
-        return numbers.stream().mapToDouble(i -> i.doubleValue()).max().getAsDouble();
+    double max(){
+       return numbers.stream().mapToDouble(Number::doubleValue).max().getAsDouble();
     }
-
-    public double avarage() {
-        return numbers.stream().mapToDouble(p -> p.doubleValue()).average().getAsDouble();
+    double avarage(){
+        return numbers.stream().mapToDouble(Number::doubleValue).average().getAsDouble();
     }
-
-    public void sort() {
+    void sort(){
         numbers = numbers.stream().sorted().collect(Collectors.toList());
     }
-
 
     @Override
     public String toString() {
         return String.format("%.2f %.2f %.2f", numbers.get(0).doubleValue(), numbers.get(1).doubleValue(), numbers.get(2).doubleValue());
     }
-
-
 }
 
 public class TripleTest {
