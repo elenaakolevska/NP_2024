@@ -35,6 +35,7 @@ class Line {
     }
 }
 
+
 class Equation<IN, OUT>{
     Supplier<IN> supplier;
     Function<IN, OUT> function;
@@ -50,21 +51,21 @@ class Equation<IN, OUT>{
 }
 
 class EquationProcessor{
-
-    public static <IN,OUT> void process(List<IN> inputs, List<Equation<IN, OUT>> equations) {
+    public static  <IN,OUT> void process(List<IN> inputs, List<Equation<IN, OUT>> equations){
 
         for (IN input : inputs) {
-            System.out.println(String.format("Input: %s", input));
+            System.out.println("Input: " + input);
         }
-            for (Equation<IN, OUT> equation : equations) {
-                if (equation.calculate().isPresent()){
-                    System.out.println("Result: "+ equation.calculate().get());
-                }
+        for (Equation<IN, OUT> equation : equations) {
+            if(equation.calculate().isPresent()){
+                System.out.println("Result: " + equation.calculate().get());
             }
+        }
 
-    
+
     }
 }
+
 
 public class EquationTester {
     public static void main(String[] args) {
@@ -81,16 +82,17 @@ public class EquationTester {
             // TODO: Add an equation where you get the 3rd integer from the inputs list, and the result is the sum of that number and the number 1000.
 
             equations1.add(new Equation<Integer, Integer>(
-                   () -> inputs.get(2),
-                    total -> inputs.get(2) + 1000
+                    () -> inputs.get(2),
+                    i->inputs.get(2)+1000
             ));
 
             // TODO: Add an equation where you get the 4th integer from the inputs list, and the result is the maximum of that number and the number 100.
 
             equations1.add(new Equation<Integer, Integer>(
-                    () -> inputs.get(3),
-                    result -> Math.max(inputs.get(3), 100)
+                    ()-> inputs.get(3),
+                    i->Math.max(inputs.get(3), 100)
             ));
+
 
             EquationProcessor.process(inputs, equations1);
 
@@ -105,18 +107,19 @@ public class EquationTester {
 
             equations2.add(new Equation<Line, Double>(
                     () -> inputs.get(1),
-                    res -> inputs.get(1).calculateLine()
+                    i->inputs.get(1).calculateLine()
+
             ));
 
             //TODO Add an equation where you get the 1st line, and the result is the sum of all y values for all lines that have a greater y value than that equation.
 
             equations2.add(new Equation<Line, Double>(
-                    () -> inputs.get(0),
-                    res -> inputs.stream().filter(p->p.calculateLine() > inputs.get(0).calculateLine()).mapToDouble(Line::calculateLine).sum()
+                    () -> inputs.get(1),
+                    i->inputs.stream().filter(a->a.calculateLine() > inputs.get(0).calculateLine()).mapToDouble(Line::calculateLine).sum()
             ));
+
 
             EquationProcessor.process(inputs, equations2);
         }
     }
 }
-

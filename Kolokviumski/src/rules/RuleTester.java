@@ -30,9 +30,9 @@ class Student {
     }
 }
 
-class Rule<IN, OUT> {
-    private Predicate<IN> predicate;
-    private Function<IN,OUT> function;
+class Rule<IN, OUT>{
+    Predicate<IN> predicate;
+    Function<IN, OUT> function;
 
     public Rule(Predicate<IN> predicate, Function<IN, OUT> function) {
         this.predicate = predicate;
@@ -40,26 +40,28 @@ class Rule<IN, OUT> {
     }
 
     public Optional<OUT> apply(IN input){
-        if (predicate.test(input))
-         return  Optional.of(function.apply(input));
-        else return Optional.empty();
+        if (predicate.test(input)){
+           return Optional.of(function.apply(input)) ;
+        }
+        return Optional.empty();
     }
 }
 
 class RuleProcessor{
-    public static  <IN, OUT> void process(List<IN> inputs, List<Rule<IN, OUT>> rules){
-        for (IN input : inputs) {
-            System.out.println(String.format("Input: %s", input));
-            for (Rule<IN, OUT> rule : rules) {
-                if(rule.apply(input).isPresent()){
-                    System.out.println("Result: " + rule.apply(input).get());
-                }else {
-                    System.out.println("Condition not met");
+    public static <IN,OUT> void  process(List<IN> input, List<Rule<IN, OUT>> rule){
+        for (IN in : input) {
+            System.out.println(String.format("Input: %s", in));
+            for (Rule<IN, OUT> inoutRule : rule) {
+                if(inoutRule.apply(in).isPresent()){
+                    System.out.println(String.format("Result: %s",inoutRule.apply(in).get()));
                 }
+                else System.out.println("Condition not met");
             }
         }
     }
 }
+
+
 
 public class RuleTester {
     public static void main(String[] args) {
@@ -73,20 +75,17 @@ public class RuleTester {
             TODO: Add a rule where if the string contains the string "NP", the result would be index of the first occurrence of the string "NP"
             * */
 
-            rules.add(new Rule<>(
-                    r -> r.contains("NP"),
-                    r -> r.indexOf("NP")
-            ));
-
+                rules.add(new Rule<>(
+                        s->s.contains("NP"),
+                        r->r.indexOf("NP")
+                ));
             /*
             TODO: Add a rule where if the string starts with the string "NP", the result would be length of the string
             * */
-
-            rules.add(new Rule<>(
-                    r -> r.startsWith("NP"),
-                    (String::length)
-            ));
-
+                rules.add(new Rule<>(
+                        s->s.startsWith("NP"),
+                        r->r.length()
+                ));
 
             List<String> inputs = new ArrayList<>();
             while (sc.hasNext()) {
@@ -101,19 +100,18 @@ public class RuleTester {
 
             //TODO Add a rule where if the student has at least 3 grades, the result would be the max grade of the student
 
-            rules.add(new Rule<>(
-                    r -> r.grades.size() >= 3,
-                    r -> r.grades.stream().mapToDouble(Integer::doubleValue).max().getAsDouble()
+            rules.add(new Rule<Student, Double>(
+                    r->r.grades.size() >= 3,
+                    r->r.grades.stream().mapToDouble(i->i.doubleValue()).max().getAsDouble()
             ));
 
             //TODO Add a rule where if the student has an ID that starts with 20, the result would be the average grade of the student
             //     If the student doesn't have any grades, the average is 5.0
 
-            rules.add(new Rule<>(
-                    r -> r.id.startsWith("20"),
-                    r -> r.grades.stream().mapToDouble(Integer::doubleValue).average().orElse(5.0)
+            rules.add(new Rule<Student, Double>(
+                    i->i.id.startsWith("20"),
+                    r->r.grades.stream().mapToDouble(a->a.doubleValue()).average().orElse(5.0)
             ));
-
 
             List<Student> students = new ArrayList<>();
             while (sc.hasNext()){

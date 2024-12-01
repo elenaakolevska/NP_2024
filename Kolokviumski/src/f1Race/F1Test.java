@@ -6,44 +6,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class Driver {
-    String name;
-    List<Duration> laps;
+class Driver{
+    String driverName;
+     List<Duration> laps;
 
-    public Driver(String name, List<Duration> lapsList) {
-        this.name = name;
-        this.laps = lapsList;
+    public Driver(String driverName, List<Duration> laps) {
+        this.driverName = driverName;
+        this.laps = laps;
+
     }
 
-    public static Driver createDriver(String line) {
+    public static Driver createDriver(String line){
         String[] parts = line.split("\\s+");
         String driverName = parts[0];
-        List<Duration> lapsList = new ArrayList<>();
-
+        List<Duration> laps1 = new ArrayList<>();
         for (int i = 1; i < parts.length; i++) {
-            lapsList.add(parseLapTime(parts[i]));
+            laps1.add(castTime(parts[i]));
         }
-
-        return new Driver(driverName, lapsList);
+        return new Driver(driverName, laps1);
     }
 
-    private static Duration parseLapTime(String lapTime) {
-        String[] timeParts = lapTime.split(":");
-        int minutes = Integer.parseInt(timeParts[0]);
-        int seconds = Integer.parseInt(timeParts[1]);
-        int millis = Integer.parseInt(timeParts[2]);
+    public static Duration castTime(String time){
+        String[] times = time.split(":");
+        int minutes = Integer.parseInt(times[0]);
+        int seconds = Integer.parseInt(times[1]);
+        int millis = Integer.parseInt(times[2]);
 
         return Duration.ofMinutes(minutes)
                 .plusSeconds(seconds)
                 .plusMillis(millis);
     }
 
-    public Duration getBestLap() {
+    public Duration findBestLap(){
         return laps.stream().min(Duration::compareTo).orElse(Duration.ZERO);
     }
+
 }
 
 class F1Race {
+
     List<Driver> drivers;
 
     public F1Race() {
@@ -52,31 +53,33 @@ class F1Race {
 
     public void readResults(InputStream in) {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        br.lines().forEach(line -> {
-            Driver driver = Driver.createDriver(line);
+        br.lines().forEach(i->{
+            Driver driver = Driver.createDriver(i);
             drivers.add(driver);
         });
+
+
     }
 
-    public void printSorted(PrintStream out) {
+    public void printSorted(OutputStream out) {
         PrintWriter pw = new PrintWriter(out);
         AtomicInteger count = new AtomicInteger();
+        count.set(1);
         drivers.stream()
-                .sorted((d1, d2) -> d1.getBestLap().compareTo(d2.getBestLap()))
-                .forEach(driver -> {
-                    count.getAndIncrement();
-                    Duration bestLap = driver.getBestLap();
-                    pw.printf("%d. %-10s %2d:%02d:%03d\n",
-                            count.get(),
-                            driver.name,
-                            bestLap.toMinutes(),
-                            bestLap.getSeconds() % 60,
-                            bestLap.toMillis() % 1000);
-                });
+                .sorted((d1, d2) -> d1.findBestLap().compareTo(d2.findBestLap()))
+                .forEachOrdered((d -> {
+                    Duration bestLap = d.findBestLap();
+                    String formattedLap = String.format("%2d:%02d:%03d",
+                            bestLap.toMinutesPart(),
+                            bestLap.toSecondsPart(),
+                            bestLap.toMillisPart());
+                    pw.println(String.format("%d. %-10s%10s", count.getAndIncrement(), d.driverName, formattedLap));
+                }));
+
         pw.flush();
     }
-}
 
+}
 public class F1Test {
 
     public static void main(String[] args) {
@@ -86,3 +89,4 @@ public class F1Test {
     }
 
 }
+
